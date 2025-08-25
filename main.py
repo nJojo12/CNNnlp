@@ -150,8 +150,31 @@ import matplotlib.pyplot as plt
 # ------------------------
 # Preprocessing
 # ------------------------
-def preprocess(text):
-    words = re.findall(r'\w+', text.lower())
+# def preprocess(text):
+#     words = re.findall(r'\w+', text.lower())
+#     return words
+
+def preprocess_text(self, text: str) -> List[str]:
+    """Clean and tokenize text"""
+    if self.lowercase:
+        text = text.lower()
+    
+    text = re.sub(r"[^\w\s'-]", " ", text)
+    
+    contractions = {
+        "won't": "will not",
+        "can't": "cannot",
+        "n't": " not",
+        "'s": " is",
+        "'re": " are",
+        "'ve": " have",
+        "'ll": " will",
+        "'d": " would"
+    }
+    for contraction, expansion in contractions.items():
+        text = text.replace(contraction, expansion)
+    
+    words = [w for w in text.split() if w]
     return words
 
 def create_vocabulary(words):
