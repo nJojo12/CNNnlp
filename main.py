@@ -1,6 +1,3 @@
-
-
-
 import numpy as np
 from collections import OrderedDict
 from tensorflow.keras.models import Model
@@ -12,9 +9,10 @@ from sklearn.decomposition import PCA
 import matplotlib.pyplot as plt
 
 # Add these imports at the top
-from tensorflow.keras.layers import Conv1D, MaxPooling1D, Flatten, GlobalMaxPooling1D
+from tensorflow.keras.layers import Conv1D, MaxPooling1D, Flatten, GlobalMaxPooling1D, Dropout
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 from tensorflow.keras.utils import to_categorical
+from tensorflow.keras import regularizers
 
 # ------------------------
 # Preprocessing
@@ -72,13 +70,15 @@ def create_cnn_model(max_sequence_length, vocab_size, num_books=7):
     embedding = Embedding(input_dim=vocab_size + 1,  # +1 for padding
                         output_dim=100,
                         input_length=max_sequence_length)(inputs)
+    x = Dropout(0.3)(embedding)  # Add dropout after embedding
     
     # CNN layers
-    conv1 = Conv1D(128, 5, activation='relu')(embedding)
+    conv1 = Conv1D(128, 5, activation='relu')(x)
     pool1 = GlobalMaxPooling1D()(conv1)
+    x = Dropout(0.3)(pool1)  # Add dropout after pooling
     
-    # Dense layers
-    dense = Dense(64, activation='relu')(pool1)
+    # Dense layers with L2 regularization
+    dense = Dense(64, activation='relu', kernel_regularizer=regularizers.l2(1e-4))(x)
     outputs = Dense(num_books, activation='softmax')(dense)
     
     # Create model
@@ -100,25 +100,24 @@ def prepare_training_data(processed_books, vocabularies, max_sequence_length=50)
     
     word_to_idx = {word: idx + 1 for idx, word in enumerate(master_vocab)}  # +1 for padding
 
-    print(word_to_idx)
+    # Remove debug prints for cleaner output
+    # print(word_to_idx)
     
     # Convert text to sequences
-    for book_num, words in processed_books.items():
-        sequence = [word_to_idx[word] for word in words if word in word_to_idx]
-        X.append(sequence)
-        y.append(int(book_num[2]) - 1)  # Convert HP1 to 0, HP2 to 1, etc.
+    for book_num, list_of_word_lists in processed_books.items():
+        for words in list_of_word_lists:
+            sequence = [word_to_idx[word] for word in words if word in word_to_idx]
+            X.append(sequence)
+            y.append(int(book_num[2]) - 1)  # Convert HP1 to 0, HP2 to 1, etc.
 
-    
     # Pad sequences
     X = pad_sequences(X, maxlen=max_sequence_length, padding='post')
     y = to_categorical(y)
 
-    print(X)
-    print(y)
+    # print(X)
+    # print(y)
     
     return X, y, word_to_idx
-
-
 
 def main():
     # Load text
@@ -126,22 +125,32 @@ def main():
     processed_books = {}
     vocabularies = {}
     
-    # Process one line from each book
+    # Process all non-empty lines (pages) from each book
     for book_num in range(1, 8):  # HP books 1-7
         filename = f'HP{book_num}.txt'
         with open(filename, 'r', encoding='utf-8') as f:
-            # Read first non-empty line
-            line = f.readline()
-            processed_words = preprocess(line)
-            processed_books[f'HP{book_num}'] = processed_words
+            lines = f.readlines()
+            processed_lines = []
+            for line in lines:
+                line = line.strip()
+                if line:  # Only process non-empty lines
+                    processed_words = preprocess(line)
+                    if processed_words:  # Only add non-empty word lists
+                        processed_lines.append(processed_words)
+            processed_books[f'HP{book_num}'] = processed_lines
 
-            unique_words, word_to_idx, idx_to_word = create_vocabulary(processed_words)
-
+            # Build vocabulary from all lines in this book
+            all_words = [word for words in processed_lines for word in words]
+            unique_words, word_to_idx, idx_to_word = create_vocabulary(all_words)
             vocabularies[f'HP{book_num}'] = [word_to_idx, idx_to_word, unique_words]
-            print(vocabularies[f'HP{book_num}'])
+            # print(vocabularies[f'HP{book_num}'])
 
-    max_sequence_length = 10
+    max_sequence_length = 50  # Increased from 10 to 50
     X, y, master_word_to_idx = prepare_training_data(processed_books, vocabularies, max_sequence_length)
+    
+    # Print class distribution
+    import numpy as np
+    print("Class distribution:", np.sum(y, axis=0))
     
     # Create and train the model
     model = create_cnn_model(max_sequence_length, len(master_word_to_idx))
