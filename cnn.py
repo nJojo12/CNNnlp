@@ -354,7 +354,7 @@ def main():
         epochs=50,
         batch_size=64,  # Reduced batch size for better learning
         callbacks=callbacks,
-        verbose=1
+        verbose=0
     )
     
     # Evaluate the model
