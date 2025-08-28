@@ -41,7 +41,7 @@ def create_vocabulary(words):
     idx_to_word = {idx: word for word, idx in word_to_idx.items()}
     return unique_words, word_to_idx, idx_to_word
 
-def load_pretrained_word2vec(model_path='word2vec_model_with_metrics1.pth'):
+def load_pretrained_word2vec(model_path='word2vec_model.pth'):
     """Load pre-trained Word2Vec model from Lab 1"""
     try:
         checkpoint = torch.load(model_path, map_location='cpu')
@@ -348,7 +348,7 @@ def main():
         epochs=50,
         batch_size=64,  # Reduced batch size for better learning
         callbacks=callbacks,
-        verbose=1
+        verbose=0
     )
     
     # Evaluate the model

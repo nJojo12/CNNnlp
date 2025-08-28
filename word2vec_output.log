@@ -1,0 +1,374 @@
+Word2Vec Skip-gram Implementation with Metric Analysis
+================================================================================
+Subtopic: How does the metric you use to interpret the embedding space
+          affect your conclusions?
+================================================================================
+
+1. Reading and preprocessing text from multiple books...
+  ✓ Loaded HP1.txt (100000 characters)
+  ✓ Loaded HP2.txt (100000 characters)
+  ✓ Loaded HP3.txt (100000 characters)
+  ✓ Loaded HP4.txt (100000 characters)
+  ✓ Loaded HP5.txt (100000 characters)
+  ✓ Loaded HP6.txt (100000 characters)
+  ✓ Loaded HP7.txt (100000 characters)
+
+2. Building vocabulary...
+Vocabulary size: 2384
+Total words: 126239
+Unique words: 9137
+
+3. Creating training dataset...
+Created 630716 training pairs
+
+4. Initializing model...
+
+5. Training model...
+Epoch 1/20, Step 0/1231, Loss: 4.1588
+Epoch 1/20, Step 100/1231, Loss: 2.7142
+Epoch 1/20, Step 200/1231, Loss: 2.6906
+Epoch 1/20, Step 300/1231, Loss: 2.5877
+Epoch 1/20, Step 400/1231, Loss: 2.6631
+Epoch 1/20, Step 500/1231, Loss: 2.6367
+Epoch 1/20, Step 600/1231, Loss: 2.6911
+Epoch 1/20, Step 700/1231, Loss: 2.7448
+Epoch 1/20, Step 800/1231, Loss: 2.7875
+Epoch 1/20, Step 900/1231, Loss: 2.7239
+Epoch 1/20, Step 1000/1231, Loss: 2.6174
+Epoch 1/20, Step 1100/1231, Loss: 2.7160
+Epoch 1/20, Step 1200/1231, Loss: 2.6180
+Epoch 1 completed. Average loss: 2.6983
+Epoch 2/20, Step 0/1231, Loss: 2.6630
+Epoch 2/20, Step 100/1231, Loss: 2.5802
+Epoch 2/20, Step 200/1231, Loss: 2.5594
+Epoch 2/20, Step 300/1231, Loss: 2.5401
+Epoch 2/20, Step 400/1231, Loss: 2.6736
+Epoch 2/20, Step 500/1231, Loss: 2.5916
+Epoch 2/20, Step 600/1231, Loss: 2.6287
+Epoch 2/20, Step 700/1231, Loss: 2.7088
+Epoch 2/20, Step 800/1231, Loss: 2.6335
+Epoch 2/20, Step 900/1231, Loss: 2.5505
+Epoch 2/20, Step 1000/1231, Loss: 2.5152
+Epoch 2/20, Step 1100/1231, Loss: 2.5213
+Epoch 2/20, Step 1200/1231, Loss: 2.6432
+Epoch 2 completed. Average loss: 2.5852
+Epoch 3/20, Step 0/1231, Loss: 2.5907
+Epoch 3/20, Step 100/1231, Loss: 2.4889
+Epoch 3/20, Step 200/1231, Loss: 2.5734
+Epoch 3/20, Step 300/1231, Loss: 2.4560
+Epoch 3/20, Step 400/1231, Loss: 2.5453
+Epoch 3/20, Step 500/1231, Loss: 2.4966
+Epoch 3/20, Step 600/1231, Loss: 2.5592
+Epoch 3/20, Step 700/1231, Loss: 2.5293
+Epoch 3/20, Step 800/1231, Loss: 2.5331
+Epoch 3/20, Step 900/1231, Loss: 2.5253
+Epoch 3/20, Step 1000/1231, Loss: 2.4624
+Epoch 3/20, Step 1100/1231, Loss: 2.4684
+Epoch 3/20, Step 1200/1231, Loss: 2.4951
+Epoch 3 completed. Average loss: 2.5026
+Epoch 4/20, Step 0/1231, Loss: 2.5531
+Epoch 4/20, Step 100/1231, Loss: 2.4092
+Epoch 4/20, Step 200/1231, Loss: 2.3427
+Epoch 4/20, Step 300/1231, Loss: 2.3934
+Epoch 4/20, Step 400/1231, Loss: 2.3893
+Epoch 4/20, Step 500/1231, Loss: 2.4126
+Epoch 4/20, Step 600/1231, Loss: 2.4680
+Epoch 4/20, Step 700/1231, Loss: 2.4743
+Epoch 4/20, Step 800/1231, Loss: 2.3892
+Epoch 4/20, Step 900/1231, Loss: 2.4549
+Epoch 4/20, Step 1000/1231, Loss: 2.5010
+Epoch 4/20, Step 1100/1231, Loss: 2.3977
+Epoch 4/20, Step 1200/1231, Loss: 2.4063
+Epoch 4 completed. Average loss: 2.4384
+Epoch 5/20, Step 0/1231, Loss: 2.3950
+Epoch 5/20, Step 100/1231, Loss: 2.4005
+Epoch 5/20, Step 200/1231, Loss: 2.4223
+Epoch 5/20, Step 300/1231, Loss: 2.4035
+Epoch 5/20, Step 400/1231, Loss: 2.3305
+Epoch 5/20, Step 500/1231, Loss: 2.3802
+Epoch 5/20, Step 600/1231, Loss: 2.4240
+Epoch 5/20, Step 700/1231, Loss: 2.4403
+Epoch 5/20, Step 800/1231, Loss: 2.4530
+Epoch 5/20, Step 900/1231, Loss: 2.4086
+Epoch 5/20, Step 1000/1231, Loss: 2.5131
+Epoch 5/20, Step 1100/1231, Loss: 2.4011
+Epoch 5/20, Step 1200/1231, Loss: 2.3185
+Epoch 5 completed. Average loss: 2.3924
+Epoch 6/20, Step 0/1231, Loss: 2.3853
+Epoch 6/20, Step 100/1231, Loss: 2.3083
+Epoch 6/20, Step 200/1231, Loss: 2.3851
+Epoch 6/20, Step 300/1231, Loss: 2.3396
+Epoch 6/20, Step 400/1231, Loss: 2.4183
+Epoch 6/20, Step 500/1231, Loss: 2.3268
+Epoch 6/20, Step 600/1231, Loss: 2.3539
+Epoch 6/20, Step 700/1231, Loss: 2.5139
+Epoch 6/20, Step 800/1231, Loss: 2.3660
+Epoch 6/20, Step 900/1231, Loss: 2.2947
+Epoch 6/20, Step 1000/1231, Loss: 2.3436
+Epoch 6/20, Step 1100/1231, Loss: 2.3722
+Epoch 6/20, Step 1200/1231, Loss: 2.3281
+Epoch 6 completed. Average loss: 2.3564
+Epoch 7/20, Step 0/1231, Loss: 2.3687
+Epoch 7/20, Step 100/1231, Loss: 2.3658
+Epoch 7/20, Step 200/1231, Loss: 2.3215
+Epoch 7/20, Step 300/1231, Loss: 2.3103
+Epoch 7/20, Step 400/1231, Loss: 2.3580
+Epoch 7/20, Step 500/1231, Loss: 2.2569
+Epoch 7/20, Step 600/1231, Loss: 2.4227
+Epoch 7/20, Step 700/1231, Loss: 2.3365
+Epoch 7/20, Step 800/1231, Loss: 2.3266
+Epoch 7/20, Step 900/1231, Loss: 2.3069
+Epoch 7/20, Step 1000/1231, Loss: 2.3559
+Epoch 7/20, Step 1100/1231, Loss: 2.2840
+Epoch 7/20, Step 1200/1231, Loss: 2.3283
+Epoch 7 completed. Average loss: 2.3237
+Epoch 8/20, Step 0/1231, Loss: 2.2315
+Epoch 8/20, Step 100/1231, Loss: 2.3725
+Epoch 8/20, Step 200/1231, Loss: 2.2296
+Epoch 8/20, Step 300/1231, Loss: 2.2373
+Epoch 8/20, Step 400/1231, Loss: 2.3584
+Epoch 8/20, Step 500/1231, Loss: 2.2775
+Epoch 8/20, Step 600/1231, Loss: 2.3002
+Epoch 8/20, Step 700/1231, Loss: 2.3220
+Epoch 8/20, Step 800/1231, Loss: 2.2953
+Epoch 8/20, Step 900/1231, Loss: 2.1883
+Epoch 8/20, Step 1000/1231, Loss: 2.3266
+Epoch 8/20, Step 1100/1231, Loss: 2.3353
+Epoch 8/20, Step 1200/1231, Loss: 2.3182
+Epoch 8 completed. Average loss: 2.2970
+Epoch 9/20, Step 0/1231, Loss: 2.2841
+Epoch 9/20, Step 100/1231, Loss: 2.3273
+Epoch 9/20, Step 200/1231, Loss: 2.2116
+Epoch 9/20, Step 300/1231, Loss: 2.3271
+Epoch 9/20, Step 400/1231, Loss: 2.2044
+Epoch 9/20, Step 500/1231, Loss: 2.1980
+Epoch 9/20, Step 600/1231, Loss: 2.3411
+Epoch 9/20, Step 700/1231, Loss: 2.2862
+Epoch 9/20, Step 800/1231, Loss: 2.2558
+Epoch 9/20, Step 900/1231, Loss: 2.2435
+Epoch 9/20, Step 1000/1231, Loss: 2.2429
+Epoch 9/20, Step 1100/1231, Loss: 2.2777
+Epoch 9/20, Step 1200/1231, Loss: 2.1788
+Epoch 9 completed. Average loss: 2.2705
+Epoch 10/20, Step 0/1231, Loss: 2.2371
+Epoch 10/20, Step 100/1231, Loss: 2.2025
+Epoch 10/20, Step 200/1231, Loss: 2.2043
+Epoch 10/20, Step 300/1231, Loss: 2.2502
+Epoch 10/20, Step 400/1231, Loss: 2.2479
+Epoch 10/20, Step 500/1231, Loss: 2.1729
+Epoch 10/20, Step 600/1231, Loss: 2.2763
+Epoch 10/20, Step 700/1231, Loss: 2.2197
+Epoch 10/20, Step 800/1231, Loss: 2.2121
+Epoch 10/20, Step 900/1231, Loss: 2.2621
+Epoch 10/20, Step 1000/1231, Loss: 2.2550
+Epoch 10/20, Step 1100/1231, Loss: 2.2389
+Epoch 10/20, Step 1200/1231, Loss: 2.2277
+Epoch 10 completed. Average loss: 2.2535
+Epoch 11/20, Step 0/1231, Loss: 2.2639
+Epoch 11/20, Step 100/1231, Loss: 2.3052
+Epoch 11/20, Step 200/1231, Loss: 2.1680
+Epoch 11/20, Step 300/1231, Loss: 2.2070
+Epoch 11/20, Step 400/1231, Loss: 2.2758
+Epoch 11/20, Step 500/1231, Loss: 2.2790
+Epoch 11/20, Step 600/1231, Loss: 2.1524
+Epoch 11/20, Step 700/1231, Loss: 2.2561
+Epoch 11/20, Step 800/1231, Loss: 2.1766
+Epoch 11/20, Step 900/1231, Loss: 2.2058
+Epoch 11/20, Step 1000/1231, Loss: 2.1415
+Epoch 11/20, Step 1100/1231, Loss: 2.2843
+Epoch 11/20, Step 1200/1231, Loss: 2.2782
+Epoch 11 completed. Average loss: 2.2293
+Epoch 12/20, Step 0/1231, Loss: 2.1952
+Epoch 12/20, Step 100/1231, Loss: 2.2073
+Epoch 12/20, Step 200/1231, Loss: 2.2544
+Epoch 12/20, Step 300/1231, Loss: 2.2374
+Epoch 12/20, Step 400/1231, Loss: 2.2497
+Epoch 12/20, Step 500/1231, Loss: 2.2453
+Epoch 12/20, Step 600/1231, Loss: 2.2756
+Epoch 12/20, Step 700/1231, Loss: 2.1520
+Epoch 12/20, Step 800/1231, Loss: 2.1664
+Epoch 12/20, Step 900/1231, Loss: 2.1523
+Epoch 12/20, Step 1000/1231, Loss: 2.2131
+Epoch 12/20, Step 1100/1231, Loss: 2.1906
+Epoch 12/20, Step 1200/1231, Loss: 2.2256
+Epoch 12 completed. Average loss: 2.2072
+Epoch 13/20, Step 0/1231, Loss: 2.2227
+Epoch 13/20, Step 100/1231, Loss: 2.2932
+Epoch 13/20, Step 200/1231, Loss: 2.1597
+Epoch 13/20, Step 300/1231, Loss: 2.1598
+Epoch 13/20, Step 400/1231, Loss: 2.1626
+Epoch 13/20, Step 500/1231, Loss: 2.1422
+Epoch 13/20, Step 600/1231, Loss: 2.1730
+Epoch 13/20, Step 700/1231, Loss: 2.2170
+Epoch 13/20, Step 800/1231, Loss: 2.1795
+Epoch 13/20, Step 900/1231, Loss: 2.2277
+Epoch 13/20, Step 1000/1231, Loss: 2.2120
+Epoch 13/20, Step 1100/1231, Loss: 2.0884
+Epoch 13/20, Step 1200/1231, Loss: 2.1082
+Epoch 13 completed. Average loss: 2.1884
+Epoch 14/20, Step 0/1231, Loss: 2.2072
+Epoch 14/20, Step 100/1231, Loss: 2.1925
+Epoch 14/20, Step 200/1231, Loss: 2.0881
+Epoch 14/20, Step 300/1231, Loss: 2.1308
+Epoch 14/20, Step 400/1231, Loss: 2.1798
+Epoch 14/20, Step 500/1231, Loss: 2.1897
+Epoch 14/20, Step 600/1231, Loss: 2.1773
+Epoch 14/20, Step 700/1231, Loss: 2.1026
+Epoch 14/20, Step 800/1231, Loss: 2.2573
+Epoch 14/20, Step 900/1231, Loss: 2.0861
+Epoch 14/20, Step 1000/1231, Loss: 2.1603
+Epoch 14/20, Step 1100/1231, Loss: 2.2476
+Epoch 14/20, Step 1200/1231, Loss: 2.2357
+Epoch 14 completed. Average loss: 2.1669
+Epoch 15/20, Step 0/1231, Loss: 2.1599
+Epoch 15/20, Step 100/1231, Loss: 2.0892
+Epoch 15/20, Step 200/1231, Loss: 2.2050
+Epoch 15/20, Step 300/1231, Loss: 2.1918
+Epoch 15/20, Step 400/1231, Loss: 2.1634
+Epoch 15/20, Step 500/1231, Loss: 2.2138
+Epoch 15/20, Step 600/1231, Loss: 2.1268
+Epoch 15/20, Step 700/1231, Loss: 2.2275
+Epoch 15/20, Step 800/1231, Loss: 2.2153
+Epoch 15/20, Step 900/1231, Loss: 2.1926
+Epoch 15/20, Step 1000/1231, Loss: 2.1753
+Epoch 15/20, Step 1100/1231, Loss: 2.1275
+Epoch 15/20, Step 1200/1231, Loss: 2.0748
+Epoch 15 completed. Average loss: 2.1481
+Epoch 16/20, Step 0/1231, Loss: 2.0749
+Epoch 16/20, Step 100/1231, Loss: 2.0897
+Epoch 16/20, Step 200/1231, Loss: 2.0791
+Epoch 16/20, Step 300/1231, Loss: 2.0891
+Epoch 16/20, Step 400/1231, Loss: 2.1144
+Epoch 16/20, Step 500/1231, Loss: 2.1195
+Epoch 16/20, Step 600/1231, Loss: 2.1727
+Epoch 16/20, Step 700/1231, Loss: 2.0767
+Epoch 16/20, Step 800/1231, Loss: 2.0806
+Epoch 16/20, Step 900/1231, Loss: 2.1742
+Epoch 16/20, Step 1000/1231, Loss: 2.1670
+Epoch 16/20, Step 1100/1231, Loss: 2.0848
+Epoch 16/20, Step 1200/1231, Loss: 2.0242
+Epoch 16 completed. Average loss: 2.1298
+Epoch 17/20, Step 0/1231, Loss: 2.1489
+Epoch 17/20, Step 100/1231, Loss: 2.1447
+Epoch 17/20, Step 200/1231, Loss: 2.0849
+Epoch 17/20, Step 300/1231, Loss: 2.1127
+Epoch 17/20, Step 400/1231, Loss: 2.1067
+Epoch 17/20, Step 500/1231, Loss: 2.0830
+Epoch 17/20, Step 600/1231, Loss: 2.1037
+Epoch 17/20, Step 700/1231, Loss: 2.1643
+Epoch 17/20, Step 800/1231, Loss: 2.1587
+Epoch 17/20, Step 900/1231, Loss: 2.0984
+Epoch 17/20, Step 1000/1231, Loss: 2.1001
+Epoch 17/20, Step 1100/1231, Loss: 2.1064
+Epoch 17/20, Step 1200/1231, Loss: 2.0763
+Epoch 17 completed. Average loss: 2.1137
+Epoch 18/20, Step 0/1231, Loss: 2.1212
+Epoch 18/20, Step 100/1231, Loss: 2.0915
+Epoch 18/20, Step 200/1231, Loss: 2.0313
+Epoch 18/20, Step 300/1231, Loss: 2.1001
+Epoch 18/20, Step 400/1231, Loss: 2.1134
+Epoch 18/20, Step 500/1231, Loss: 2.1236
+Epoch 18/20, Step 600/1231, Loss: 2.1168
+Epoch 18/20, Step 700/1231, Loss: 2.1101
+Epoch 18/20, Step 800/1231, Loss: 2.1296
+Epoch 18/20, Step 900/1231, Loss: 2.0179
+Epoch 18/20, Step 1000/1231, Loss: 2.1760
+Epoch 18/20, Step 1100/1231, Loss: 2.0476
+Epoch 18/20, Step 1200/1231, Loss: 2.1340
+Epoch 18 completed. Average loss: 2.0982
+Epoch 19/20, Step 0/1231, Loss: 2.0962
+Epoch 19/20, Step 100/1231, Loss: 2.0911
+Epoch 19/20, Step 200/1231, Loss: 1.9856
+Epoch 19/20, Step 300/1231, Loss: 2.0871
+Epoch 19/20, Step 400/1231, Loss: 2.0693
+Epoch 19/20, Step 500/1231, Loss: 2.0929
+Epoch 19/20, Step 600/1231, Loss: 2.0288
+Epoch 19/20, Step 700/1231, Loss: 2.1301
+Epoch 19/20, Step 800/1231, Loss: 2.0412
+Epoch 19/20, Step 900/1231, Loss: 2.0866
+Epoch 19/20, Step 1000/1231, Loss: 2.1248
+Epoch 19/20, Step 1100/1231, Loss: 2.0661
+Epoch 19/20, Step 1200/1231, Loss: 1.9747
+Epoch 19 completed. Average loss: 2.0848
+Epoch 20/20, Step 0/1231, Loss: 2.1188
+Epoch 20/20, Step 100/1231, Loss: 2.0585
+Epoch 20/20, Step 200/1231, Loss: 2.0227
+Epoch 20/20, Step 300/1231, Loss: 2.0835
+Epoch 20/20, Step 400/1231, Loss: 2.0338
+Epoch 20/20, Step 500/1231, Loss: 2.1096
+Epoch 20/20, Step 600/1231, Loss: 2.0810
+Epoch 20/20, Step 700/1231, Loss: 1.9812
+Epoch 20/20, Step 800/1231, Loss: 2.0570
+Epoch 20/20, Step 900/1231, Loss: 2.0797
+Epoch 20/20, Step 1000/1231, Loss: 2.0876
+Epoch 20/20, Step 1100/1231, Loss: 2.0467
+Epoch 20/20, Step 1200/1231, Loss: 2.0307
+Epoch 20 completed. Average loss: 2.0731
+
+6. Performing comprehensive metric analysis...
+
+7. Generating metric comparison visualizations...
+
+================================================================================
+CHARACTER RELATIONSHIP ANALYSIS ACROSS METRICS
+================================================================================
+
+Characters found: harry, ron, hermione, voldemort, dumbledore, snape, draco, hagrid, neville, mcgonagall
+
+
+COSINE SIMILARITY
+----------------------------------------
+
+Top character relationships (cosine):
+  Ron-Hermione: 0.522
+  Snape-Draco: 0.453
+  Harry-Hagrid: 0.453
+  Snape-Mcgonagall: 0.393
+  Ron-Hagrid: 0.383
+
+
+EUCLIDEAN SIMILARITY
+----------------------------------------
+
+Top character relationships (euclidean):
+  Harry-Hagrid: 0.300
+  Harry-Dumbledore: 0.288
+  Harry-Ron: 0.276
+  Ron-Hagrid: 0.254
+  Ron-Hermione: 0.250
+
+
+MANHATTAN SIMILARITY
+----------------------------------------
+
+Top character relationships (manhattan):
+  Harry-Hagrid: 0.052
+  Harry-Dumbledore: 0.049
+  Harry-Ron: 0.045
+  Ron-Hagrid: 0.041
+  Ron-Hermione: 0.041
+
+
+DOT SIMILARITY
+----------------------------------------
+
+Top character relationships (dot):
+  Draco-Neville: 7.905
+  Snape-Mcgonagall: 7.286
+  Snape-Draco: 7.063
+  Draco-Mcgonagall: 4.963
+  Dumbledore-Mcgonagall: 4.880
+
+Creating metric correlation analysis...
+
+9. Saving model and analysis results...
+
+Analysis complete!
+Generated files:
+  - word2vec_model_with_metrics.pth
+  - metric_comparison_report.txt
+  - metric_analysis_overview.png
+  - metric_comparison_neighbors.png
+  - metric_correlations.png
+  - character_relationships_*.png (for each metric)
+  - metric_comparison_data.json
