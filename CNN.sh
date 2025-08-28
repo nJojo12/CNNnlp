@@ -8,4 +8,4 @@
 #SBATCH --partition=bigbatch
 
 
-python main.py
+python word2vec.py

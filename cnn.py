@@ -103,7 +103,7 @@ def create_improved_cnn_model(max_sequence_length, vocab_size, embedding_matrix=
     
     # Concatenate CNN and LSTM features
     from tensorflow.keras.layers import concatenate
-    combined = concatenate([merged, lstm])
+    combined = concatenate([merged])
     
     # Dense layers with dropout and regularization
     dense1 = Dense(256, activation='relu', kernel_regularizer=regularizers.l2(1e-4))(combined)

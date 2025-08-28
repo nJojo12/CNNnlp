@@ -942,7 +942,7 @@ def main():
         'idx_to_word': preprocessor.idx_to_word,
         'config': config,
         'loss_history': trainer.loss_history
-    }, 'word2vec_model_with_metrics.pth')
+    }, 'word2vec_model_with_metrics1.pth')
     
     # Save metric comparison data
     metric_comparison_data = {
