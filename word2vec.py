@@ -823,7 +823,6 @@ def main():
     # Configuration
     config = {
         'text_files': ['HP1.txt', 'HP2.txt', 'HP3.txt', 'HP4.txt', 'HP5.txt', 'HP6.txt', 'HP7.txt'],
-        'max_words_per_file': 100000,
         'min_word_freq': 5,
         'embedding_dim': 100,
         'window_size': 5,
@@ -848,7 +847,7 @@ def main():
     for text_file in config['text_files']:
         try:
             with open(text_file, 'r', encoding='utf-8') as f:
-                book_text = f.read()[:config['max_words_per_file']]
+                book_text = f.read()
                 all_text += " " + book_text
                 books_loaded.append(text_file)
                 print(f"  ✓ Loaded {text_file} ({len(book_text)} characters)")
