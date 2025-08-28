@@ -345,7 +345,7 @@ def main():
     history = model.fit(
         X_train, y_train,
         validation_data=(X_val, y_val),
-        epochs=15,
+        epochs=20,
         batch_size=64,  # Reduced batch size for better learning
         callbacks=callbacks,
         verbose=1
