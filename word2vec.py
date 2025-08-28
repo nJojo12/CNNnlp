@@ -13,12 +13,10 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from collections import Counter, defaultdict
+from collections import Counter
 import re
 import matplotlib.pyplot as plt
 import seaborn as sns
-from sklearn.decomposition import PCA
-from sklearn.manifold import TSNE
 from sklearn.metrics import pairwise_distances
 from sklearn.preprocessing import normalize
 import random
@@ -824,6 +822,7 @@ def main():
     config = {
         'text_files': ['HP1.txt', 'HP2.txt', 'HP3.txt', 'HP4.txt', 'HP5.txt', 'HP6.txt', 'HP7.txt'],
         'min_word_freq': 5,
+        'max_words_per_file': 100000,
         'embedding_dim': 100,
         'window_size': 5,
         'epochs': 20,
@@ -847,7 +846,7 @@ def main():
     for text_file in config['text_files']:
         try:
             with open(text_file, 'r', encoding='utf-8') as f:
-                book_text = f.read()
+                book_text = f.read()[:config['max_words_per_file']]
                 all_text += " " + book_text
                 books_loaded.append(text_file)
                 print(f"  ✓ Loaded {text_file} ({len(book_text)} characters)")
@@ -942,7 +941,7 @@ def main():
         'idx_to_word': preprocessor.idx_to_word,
         'config': config,
         'loss_history': trainer.loss_history
-    }, 'word2vec_model_with_metrics1.pth')
+    }, 'word2vec_model.pth')
     
     # Save metric comparison data
     metric_comparison_data = {

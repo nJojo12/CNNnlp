@@ -145,7 +145,7 @@ def main():
             vocabularies[f'HP{book_num}'] = [word_to_idx, idx_to_word, unique_words]
             # print(vocabularies[f'HP{book_num}'])
 
-    max_sequence_length = 50  # Increased from 10 to 50
+    max_sequence_length = 60  # Increased from 10 to 50
     X, y, master_word_to_idx = prepare_training_data(processed_books, vocabularies, max_sequence_length)
     
     # Print class distribution
@@ -158,11 +158,13 @@ def main():
     # Split data into train and test sets
     from sklearn.model_selection import train_test_split
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    X_train, X_Validation, y_train, y_Validation = train_test_split(X_train, y_train, test_size=0.2, random_state=42)
+
     
     # Train the model
     history = model.fit(X_train, y_train,
-                       validation_data=(X_test, y_test),
-                       epochs=10,
+                       validation_data=(X_Validation, y_Validation),
+                       epochs=30,
                        batch_size=32)
     
     # Evaluate the model
