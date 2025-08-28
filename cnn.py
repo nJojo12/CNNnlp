@@ -41,7 +41,7 @@ def create_vocabulary(words):
     idx_to_word = {idx: word for word, idx in word_to_idx.items()}
     return unique_words, word_to_idx, idx_to_word
 
-def load_pretrained_word2vec(model_path='word2vec_model_with_metrics.pth'):
+def load_pretrained_word2vec(model_path='word2vec_model_with_metrics1.pth'):
     """Load pre-trained Word2Vec model from Lab 1"""
     try:
         checkpoint = torch.load(model_path, map_location='cpu')
@@ -278,7 +278,7 @@ def main():
         return None
 
     # Prepare training data
-    max_sequence_length = 150  # Increased for better context
+    max_sequence_length = 200  # Increased for better context
     X, y, master_word_to_idx, vocab_size = prepare_improved_training_data(
         processed_books, pretrained_word_to_idx, max_sequence_length
     )
@@ -336,7 +336,7 @@ def main():
     
     # Setup callbacks
     callbacks = [
-        EarlyStopping(monitor='val_accuracy', patience=5, restore_best_weights=True),
+        # EarlyStopping(monitor='val_accuracy', patience=5, restore_best_weights=True),
         ReduceLROnPlateau(monitor='val_loss', factor=0.5, patience=3, min_lr=1e-6)
     ]
     
@@ -345,7 +345,7 @@ def main():
     history = model.fit(
         X_train, y_train,
         validation_data=(X_val, y_val),
-        epochs=20,
+        epochs=50,
         batch_size=64,  # Reduced batch size for better learning
         callbacks=callbacks,
         verbose=1
@@ -378,7 +378,7 @@ def main():
     
     plt.tight_layout()
     plt.savefig('training_history.png', dpi=300, bbox_inches='tight')
-    plt.show()
+    # plt.show()
     
     # Detailed evaluation
     y_pred = model.predict(X_test)
