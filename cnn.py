@@ -41,7 +41,7 @@ def create_vocabulary(words):
     idx_to_word = {idx: word for word, idx in word_to_idx.items()}
     return unique_words, word_to_idx, idx_to_word
 
-def load_pretrained_word2vec(model_path='word2vec_model_with_metrics1.pth'):
+def load_pretrained_word2vec(model_path='word2vec_model.pth'):
     """Load pre-trained Word2Vec model from Lab 1"""
     try:
         checkpoint = torch.load(model_path, map_location='cpu')
@@ -252,23 +252,29 @@ def main():
     processed_books = {}
     
     # Process all books
+    max_lines_per_book = 300  # Set your desired cap here
+
     for book_num in range(1, 8):
         filename = f'HP{book_num}.txt'
         try:
             with open(filename, 'r', encoding='utf-8') as f:
                 lines = f.readlines()
                 processed_lines = []
-                
+                line_count = 0
+
                 for line in lines:
+                    if line_count >= max_lines_per_book:
+                        break
                     line = line.strip()
                     if len(line) > 50:  # Only process substantial lines
                         processed_words = preprocess(line)
                         if len(processed_words) > 10:  # Only add meaningful sequences
                             processed_lines.append(processed_words)
-                
+                            line_count += 1
+
                 processed_books[f'HP{book_num}'] = processed_lines
-                print(f"Loaded HP{book_num}: {len(processed_lines)} pages")
-                
+                print(f"Loaded HP{book_num}: {len(processed_lines)} pages (capped at {max_lines_per_book})")
+
         except FileNotFoundError:
             print(f"Warning: {filename} not found")
             continue
@@ -337,7 +343,7 @@ def main():
     # Setup callbacks
     callbacks = [
         # EarlyStopping(monitor='val_accuracy', patience=5, restore_best_weights=True),
-        ReduceLROnPlateau(monitor='val_loss', factor=0.5, patience=3, min_lr=1e-6)
+        # ReduceLROnPlateau(monitor='val_loss', factor=0.5, patience=3, min_lr=1e-6)
     ]
     
     # Train the model
