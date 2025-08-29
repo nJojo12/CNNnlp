@@ -41,7 +41,7 @@ def create_vocabulary(words):
     idx_to_word = {idx: word for word, idx in word_to_idx.items()}
     return unique_words, word_to_idx, idx_to_word
 
-def load_pretrained_word2vec(model_path='word2vec_model.pth'):
+def load_pretrained_word2vec(model_path=''):
     """Load pre-trained Word2Vec model from Lab 1"""
     try:
         checkpoint = torch.load(model_path, map_location='cpu')
@@ -84,7 +84,7 @@ def create_improved_cnn_model(max_sequence_length, vocab_size, embedding_matrix=
     
     # Multiple CNN layers with different filter sizes
     conv_layers = []
-    filter_sizes = [3, 4, 5]
+    filter_sizes = [2, 3, 4, 5]
     
     for filter_size in filter_sizes:
         conv = Conv1D(128, filter_size, activation='relu', padding='same')(x)
@@ -99,7 +99,7 @@ def create_improved_cnn_model(max_sequence_length, vocab_size, embedding_matrix=
         merged = conv_layers[0]
     
     # Add LSTM for sequential patterns
-    lstm = Bidirectional(LSTM(64, return_sequences=False, dropout=0.2))(x)
+    # lstm = Bidirectional(LSTM(64, return_sequences=False, dropout=0.2))(x)
     
     # Concatenate CNN and LSTM features
     from tensorflow.keras.layers import concatenate
@@ -126,7 +126,7 @@ def create_improved_cnn_model(max_sequence_length, vocab_size, embedding_matrix=
     
     return model
 
-def prepare_improved_training_data(processed_books, pretrained_word_to_idx=None, max_sequence_length=100):
+def prepare_improved_training_data(processed_books, pretrained_word_to_idx=None, max_sequence_length=200):
     """Improved training data preparation with better text chunking and fixed indexing"""
     X = []
     y = []
@@ -252,29 +252,23 @@ def main():
     processed_books = {}
     
     # Process all books
-    max_lines_per_book = 300  # Set your desired cap here
-
     for book_num in range(1, 8):
         filename = f'HP{book_num}.txt'
         try:
             with open(filename, 'r', encoding='utf-8') as f:
                 lines = f.readlines()
                 processed_lines = []
-                line_count = 0
-
+                
                 for line in lines:
-                    if line_count >= max_lines_per_book:
-                        break
                     line = line.strip()
                     if len(line) > 50:  # Only process substantial lines
                         processed_words = preprocess(line)
                         if len(processed_words) > 10:  # Only add meaningful sequences
                             processed_lines.append(processed_words)
-                            line_count += 1
-
+                
                 processed_books[f'HP{book_num}'] = processed_lines
-                print(f"Loaded HP{book_num}: {len(processed_lines)} pages (capped at {max_lines_per_book})")
-
+                print(f"Loaded HP{book_num}: {len(processed_lines)} pages")
+                
         except FileNotFoundError:
             print(f"Warning: {filename} not found")
             continue
@@ -284,7 +278,7 @@ def main():
         return None
 
     # Prepare training data
-    max_sequence_length = 200  # Increased for better context
+    max_sequence_length = 100 # Increased for better context
     X, y, master_word_to_idx, vocab_size = prepare_improved_training_data(
         processed_books, pretrained_word_to_idx, max_sequence_length
     )
@@ -342,8 +336,8 @@ def main():
     
     # Setup callbacks
     callbacks = [
-        # EarlyStopping(monitor='val_accuracy', patience=5, restore_best_weights=True),
-        # ReduceLROnPlateau(monitor='val_loss', factor=0.5, patience=3, min_lr=1e-6)
+        EarlyStopping(monitor='val_accuracy', patience=5, restore_best_weights=True),
+        ReduceLROnPlateau(monitor='val_loss', factor=0.5, patience=3, min_lr=1e-6)
     ]
     
     # Train the model
@@ -351,10 +345,10 @@ def main():
     history = model.fit(
         X_train, y_train,
         validation_data=(X_val, y_val),
-        epochs=50,
+        epochs=15,
         batch_size=64,  # Reduced batch size for better learning
         callbacks=callbacks,
-        verbose=0
+        verbose=1
     )
     
     # Evaluate the model
@@ -384,7 +378,7 @@ def main():
     
     plt.tight_layout()
     plt.savefig('training_history.png', dpi=300, bbox_inches='tight')
-    # plt.show()
+    plt.show()
     
     # Detailed evaluation
     y_pred = model.predict(X_test)
