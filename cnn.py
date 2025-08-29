@@ -7,7 +7,7 @@ import re
 from sklearn.metrics.pairwise import cosine_similarity, euclidean_distances, manhattan_distances
 from sklearn.decomposition import PCA
 import matplotlib.pyplot as plt
-
+import time
 # Add these imports at the top
 from tensorflow.keras.layers import Conv1D, MaxPooling1D, Flatten, GlobalMaxPooling1D, Dropout, LSTM, Bidirectional
 from tensorflow.keras.preprocessing.sequence import pad_sequences
@@ -241,7 +241,7 @@ def create_embedding_matrix(pretrained_embeddings, pretrained_word_to_idx, new_w
     print(f"Found pre-trained embeddings for {found_words}/{len(new_word_to_idx)} words")
     print(f"Embedding matrix shape: {embedding_matrix.shape}")
     return embedding_matrix
-import time
+
 import datetime
 
 # Add this import at the top with your other imports
@@ -509,10 +509,9 @@ def main():
             history = model.fit(
                 dataset['X_train'], dataset['y_train'],
                 validation_data=(dataset['X_val'], dataset['y_val']),
-                epochs=10,  # Reduced for faster experimentation
+                epochs=15,  # Reduced for faster experimentation
                 batch_size=64,
-                callbacks=callbacks,
-                verbose=1
+                callbacks=callbacks
             )
             
             training_end_time = time.time()
@@ -665,8 +664,8 @@ def main():
         
         print(f"{'Rank':<5} {'Config':<20} {'Efficiency':<12} {'Accuracy':<10} {'Time':<12}")
         print("-" * 70)
-        for i, (config, eff, acc, time) in enumerate(efficiency_results[:10], 1):
-            print(f"{i:<5} {config:<20} {eff:.3f}      {acc:.4f}    {format_time(time):<12}")
+        for i, (config, eff, acc, train_time) in enumerate(efficiency_results[:10], 1):
+            print(f"{i:<5} {config:<20} {eff:.3f}      {acc:.4f}    {format_time(train_time):<12}")
     
     # Save comprehensive results
     import json
