@@ -261,9 +261,113 @@ def format_time(seconds):
         secs = seconds % 60
         return f"{int(hours)}h {int(minutes)}m {secs:.1f}s"
 
+def create_comprehensive_experiment_configs():
+    """Create extensive experiment configurations with kernel sizes and sequence lengths"""
+    
+    # Define comprehensive configurations
+    configs = [
+        # Small kernels with different sequence lengths
+        {"name": "Tiny-Short", "kernels": [1, 2], "seq_len": 50, "filters": 128},
+        {"name": "Tiny-Medium", "kernels": [1, 2], "seq_len": 100, "filters": 128},
+        {"name": "Tiny-Long", "kernels": [1, 2], "seq_len": 150, "filters": 128},
+        {"name": "Tiny-XLong", "kernels": [1, 2], "seq_len": 200, "filters": 128},
+        
+        # Small kernels
+        {"name": "Small-Short", "kernels": [2, 3, 4], "seq_len": 50, "filters": 128},
+        {"name": "Small-Medium", "kernels": [2, 3, 4], "seq_len": 100, "filters": 128},
+        {"name": "Small-Long", "kernels": [2, 3, 4], "seq_len": 150, "filters": 128},
+        {"name": "Small-XLong", "kernels": [2, 3, 4], "seq_len": 200, "filters": 128},
+        
+        # Medium kernels  
+        {"name": "Medium-Short", "kernels": [5, 7, 9], "seq_len": 50, "filters": 96},
+        {"name": "Medium-Medium", "kernels": [5, 7, 9], "seq_len": 100, "filters": 96},
+        {"name": "Medium-Long", "kernels": [5, 7, 9], "seq_len": 150, "filters": 96},
+        {"name": "Medium-XLong", "kernels": [5, 7, 9], "seq_len": 200, "filters": 96},
+        
+        # Large kernels
+        {"name": "Large-Short", "kernels": [10, 15, 20], "seq_len": 50, "filters": 64},
+        {"name": "Large-Medium", "kernels": [10, 15, 20], "seq_len": 100, "filters": 64},
+        {"name": "Large-Long", "kernels": [10, 15, 20], "seq_len": 150, "filters": 64},
+        {"name": "Large-XLong", "kernels": [10, 15, 20], "seq_len": 200, "filters": 64},
+        
+        # Very large kernels
+        {"name": "XLarge-Medium", "kernels": [25, 35, 45], "seq_len": 100, "filters": 48},
+        {"name": "XLarge-Long", "kernels": [25, 35, 45], "seq_len": 150, "filters": 48},
+        {"name": "XLarge-XLong", "kernels": [25, 35, 45], "seq_len": 200, "filters": 48},
+        {"name": "XLarge-XXLong", "kernels": [25, 35, 45], "seq_len": 250, "filters": 48},
+        
+        # Extreme kernels (testing limits)
+        {"name": "Extreme-Long", "kernels": [50, 75, 100], "seq_len": 200, "filters": 32},
+        {"name": "Extreme-XLong", "kernels": [50, 75, 100], "seq_len": 250, "filters": 32},
+        {"name": "Extreme-XXLong", "kernels": [50, 75, 100], "seq_len": 300, "filters": 32},
+        
+        # Single kernel experiments for pure comparison
+        {"name": "Single-1", "kernels": [1], "seq_len": 100, "filters": 256},
+        {"name": "Single-3", "kernels": [3], "seq_len": 100, "filters": 256},
+        {"name": "Single-5", "kernels": [5], "seq_len": 100, "filters": 256},
+        {"name": "Single-10", "kernels": [10], "seq_len": 100, "filters": 256},
+        {"name": "Single-20", "kernels": [20], "seq_len": 100, "filters": 256},
+        {"name": "Single-50", "kernels": [50], "seq_len": 100, "filters": 256},
+        
+        # Efficiency optimized
+        {"name": "Fast-Small", "kernels": [2, 3], "seq_len": 50, "filters": 64},
+        {"name": "Fast-Medium", "kernels": [3, 4], "seq_len": 75, "filters": 64},
+        {"name": "Fast-Large", "kernels": [4, 5], "seq_len": 100, "filters": 64},
+        
+        # Accuracy optimized (based on literature)
+        {"name": "Optimal-A", "kernels": [3, 4, 5], "seq_len": 128, "filters": 100},
+        {"name": "Optimal-B", "kernels": [3, 4, 5, 6], "seq_len": 128, "filters": 80},
+        {"name": "Optimal-C", "kernels": [2, 3, 4, 5, 6], "seq_len": 128, "filters": 64},
+    ]
+    
+    return configs
+
+def create_custom_cnn_model(max_sequence_length, vocab_size, embedding_matrix=None,
+                           embedding_dim=100, filter_sizes=[3, 4, 5], num_filters=128):
+    """Create CNN model with custom filter count"""
+    
+    inputs = Input(shape=(max_sequence_length,))
+    
+    if embedding_matrix is not None:
+        embedding = Embedding(input_dim=vocab_size, output_dim=embedding_dim,
+                            weights=[embedding_matrix], trainable=False)(inputs)
+    else:
+        embedding = Embedding(input_dim=vocab_size, output_dim=embedding_dim)(inputs)
+    
+    x = Dropout(0.2)(embedding)
+    
+    # Multiple CNN layers with specified filter count
+    conv_layers = []
+    for filter_size in filter_sizes:
+        conv = Conv1D(num_filters, filter_size, activation='relu', padding='same')(x)
+        conv = GlobalMaxPooling1D()(conv)
+        conv_layers.append(conv)
+    
+    # Concatenate all conv layers
+    if len(conv_layers) > 1:
+        from tensorflow.keras.layers import concatenate
+        merged = concatenate(conv_layers)
+    else:
+        merged = conv_layers[0]
+    
+    # Dense layers
+    dense1 = Dense(256, activation='relu', kernel_regularizer=regularizers.l2(1e-4))(merged)
+    dense1 = Dropout(0.5)(dense1)
+    
+    dense2 = Dense(128, activation='relu', kernel_regularizer=regularizers.l2(1e-4))(dense1)
+    dense2 = Dropout(0.3)(dense2)
+    
+    outputs = Dense(7, activation='softmax')(dense2)
+    
+    model = Model(inputs=inputs, outputs=outputs)
+    model.compile(optimizer=Adam(learning_rate=0.001),
+                 loss='categorical_crossentropy', metrics=['accuracy'])
+    
+    return model
+
 def main():
-    print("Improved CNN Text Classifier for Harry Potter Books")
-    print("=" * 60)
+    print("Comprehensive CNN Text Classifier Experiment for Harry Potter Books")
+    print("=" * 80)
     
     # Try to load pre-trained Word2Vec embeddings
     pretrained_embeddings, pretrained_word_to_idx, pretrained_idx_to_word = load_pretrained_word2vec()
@@ -297,248 +401,299 @@ def main():
         print("Error: No Harry Potter books found!")
         return None
 
-    # Prepare training data
-    max_sequence_length = 100 # Increased for better context
-    X, y, master_word_to_idx, vocab_size = prepare_improved_training_data(
-        processed_books, pretrained_word_to_idx, max_sequence_length
-    )
-    
-    # Print class distribution
-    print("\nClass distribution:")
-    class_counts = np.sum(y, axis=0)
-    for i, count in enumerate(class_counts):
-        print(f"  HP{i+1}: {int(count)} samples")
-    
-    # Create embedding matrix if we have pre-trained embeddings
-    embedding_matrix = None
-    embedding_dim = 100
-    
-    if pretrained_embeddings is not None:
-        embedding_dim = pretrained_embeddings.shape[1]
-        embedding_matrix = create_embedding_matrix(
-            pretrained_embeddings, pretrained_word_to_idx, 
-            master_word_to_idx, embedding_dim, vocab_size
-        )
-    
-    # Create improved model configurations
-    fs = [[2,3,4],[10,15,20],[50,75,100],[150,200,250]]
-    config_names = ["Small kernels (2,3,4)", "Medium kernels (10,15,20)", 
-                   "Large kernels (50,75,100)", "Very large kernels (150,200,250)"]
-    
-    models = []
-    timing_results = []
-    
-    # Build all models first
-    print("\n" + "="*60)
-    print("BUILDING MODELS")
-    print("="*60)
-    
-    for i, filter_config in enumerate(fs):
-        print(f"\nBuilding model {i+1}: {config_names[i]}")
-        model_build_start = time.time()
-        
-        model = create_improved_cnn_model(
-            max_sequence_length=max_sequence_length,
-            vocab_size=vocab_size,
-            embedding_matrix=embedding_matrix,
-            embedding_dim=embedding_dim,
-            num_books=7,
-            trainable_embeddings=False,
-            filter_sizes=filter_config
-        )
-        
-        model_build_time = time.time() - model_build_start
-        print(f"Model built in {format_time(model_build_time)}")
-        
-        models.append(model)
-        timing_results.append({
-            'config_name': config_names[i],
-            'filter_sizes': filter_config,
-            'build_time': model_build_time,
-            'param_count': model.count_params()
-        })
-
-    # Split data once for all models
-    print(f"\n{'='*60}")
-    print("PREPARING DATA SPLITS")
-    print("="*60)
-    
-    data_split_start = time.time()
-    
-    from sklearn.model_selection import train_test_split
-    
-    # Convert one-hot back to labels for stratification
-    y_labels = np.argmax(y, axis=1)
-    
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.2, random_state=42, stratify=y_labels
-    )
-    
-    # Further split training into train/validation
-    X_train, X_val, y_train, y_val = train_test_split(
-        X_train, y_train, test_size=0.2, random_state=42, 
-        stratify=np.argmax(y_train, axis=1)
-    )
-    
-    data_split_time = time.time() - data_split_start
-    
-    print(f"Data splits prepared in {format_time(data_split_time)}")
-    print(f"  Training: {X_train.shape[0]} samples")
-    print(f"  Validation: {X_val.shape[0]} samples") 
-    print(f"  Testing: {X_test.shape[0]} samples")
-
-    # Train each model and track timing
-    count = 1
-    for model_idx, model in enumerate(models):
-        config_name = config_names[model_idx]
-        filter_config = fs[model_idx]
-        
-        print(f"\n{'='*80}")
-        print(f"TRAINING MODEL {count}: {config_name}")
-        print(f"Filter sizes: {filter_config}")
-        print(f"Parameters: {model.count_params():,}")
-        print("="*80)
-        
-        # Model summary
-        print(f"\nModel architecture:")
-        model.summary()
-        
-        # Setup callbacks
-        callbacks = [
-            EarlyStopping(monitor='val_accuracy', patience=5, restore_best_weights=True),
-            ReduceLROnPlateau(monitor='val_loss', factor=0.5, patience=3, min_lr=1e-6)
-        ]
-        
-        # Train the model with timing
-        print(f"\nStarting training at {datetime.datetime.now().strftime('%H:%M:%S')}")
-        training_start_time = time.time()
-        
-        history = model.fit(
-            X_train, y_train,
-            validation_data=(X_val, y_val),
-            epochs=15,
-            batch_size=64,
-            callbacks=callbacks,
-            verbose=1
-        )
-        
-        training_end_time = time.time()
-        training_time = training_end_time - training_start_time
-        
-        print(f"\nTraining completed at {datetime.datetime.now().strftime('%H:%M:%S')}")
-        print(f"Training time: {format_time(training_time)}")
-        
-        # Evaluation timing
-        eval_start_time = time.time()
-        test_loss, test_accuracy = model.evaluate(X_test, y_test, verbose=0)
-        eval_time = time.time() - eval_start_time
-        
-        # Store timing results
-        timing_results[model_idx].update({
-            'training_time': training_time,
-            'eval_time': eval_time,
-            'total_time': training_time + eval_time,
-            'test_accuracy': test_accuracy,
-            'test_loss': test_loss,
-            'epochs_trained': len(history.history['loss']),
-            'best_val_accuracy': max(history.history['val_accuracy']),
-            'time_per_epoch': training_time / len(history.history['loss'])
-        })
-        
-        print(f"\nFinal Results for {config_name}:")
-        print(f"  Test accuracy: {test_accuracy:.4f} ({test_accuracy*100:.2f}%)")
-        print(f"  Test loss: {test_loss:.4f}")
-        print(f"  Training time: {format_time(training_time)}")
-        print(f"  Evaluation time: {format_time(eval_time)}")
-        print(f"  Total time: {format_time(training_time + eval_time)}")
-        print(f"  Epochs trained: {len(history.history['loss'])}")
-        print(f"  Time per epoch: {format_time(training_time / len(history.history['loss']))}")
-        
-        # Detailed evaluation
-        print(f"\nGenerating detailed analysis...")
-        analysis_start = time.time()
-        
-        y_pred = model.predict(X_test)
-        y_pred_classes = np.argmax(y_pred, axis=1)
-        y_test_classes = np.argmax(y_test, axis=1)
-        from sklearn.metrics import classification_report, confusion_matrix
-        import seaborn as sns
-        
-        print("\nClassification Report:")
-        book_names = [f'HP{i+1}' for i in range(7)]
-        print(classification_report(y_test_classes, y_pred_classes, 
-                                target_names=book_names))
-        
-        # Confusion matrix
-        plt.figure(figsize=(8, 6))
-        cm = confusion_matrix(y_test_classes, y_pred_classes)
-        sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', 
-                    xticklabels=book_names, yticklabels=book_names)
-        plt.title(f'Confusion Matrix - {config_name}')
-        plt.ylabel('True Label')
-        plt.xlabel('Predicted Label')
-        plt.savefig(f'confusion_matrix_{count}_{config_name.replace(" ", "_").replace("(", "").replace(")", "").replace(",", "_")}.png', 
-                   dpi=300, bbox_inches='tight')
-        plt.close()  # Close to save memory
-          
-        # Plot training history
-        plt.figure(figsize=(12, 4))
-        
-        plt.subplot(1, 2, 1)
-        plt.plot(history.history['accuracy'], label='Training Accuracy')
-        plt.plot(history.history['val_accuracy'], label='Validation Accuracy')
-        plt.title(f'Model Accuracy - {config_name}')
-        plt.xlabel('Epoch')
-        plt.ylabel('Accuracy')
-        plt.legend()
-        
-        plt.subplot(1, 2, 2)
-        plt.plot(history.history['loss'], label='Training Loss')
-        plt.plot(history.history['val_loss'], label='Validation Loss')
-        plt.title(f'Model Loss - {config_name}')
-        plt.xlabel('Epoch')
-        plt.ylabel('Loss')
-        plt.legend()
-        
-        plt.tight_layout()
-        plt.savefig(f'training_history_{count}_{config_name.replace(" ", "_").replace("(", "").replace(")", "").replace(",", "_")}.png', 
-                   dpi=300, bbox_inches='tight')
-        plt.close()  # Close to save memory
-        
-        analysis_time = time.time() - analysis_start
-        print(f"Analysis completed in {format_time(analysis_time)}")
-        
-        count += 1
-    
-    # Print comprehensive timing comparison
-    print(f"\n{'='*80}")
-    print("COMPREHENSIVE TIMING COMPARISON")
-    print("="*80)
-    
-    print(f"{'Model':<25} {'Filters':<20} {'Params':<10} {'Accuracy':<10} {'Train Time':<12} {'Time/Epoch':<12}")
-    print("-" * 100)
-    
-    for result in timing_results:
-        print(f"{result['config_name'][:24]:<25} "
-              f"{str(result['filter_sizes']):<20} "
-              f"{result['param_count']:,<10} "
-              f"{result['test_accuracy']:.4f}    "
-              f"{format_time(result['training_time']):<12} "
-              f"{format_time(result['time_per_epoch']):<12}")
-    
-    # Find best performers
-    best_accuracy = max(timing_results, key=lambda x: x['test_accuracy'])
-    fastest_training = min(timing_results, key=lambda x: x['training_time'])
-    best_efficiency = min(timing_results, key=lambda x: x['training_time'] / x['test_accuracy'])
+    # Get comprehensive experiment configurations
+    experiment_configs = create_comprehensive_experiment_configs()
     
     print(f"\n{'='*80}")
-    print("PERFORMANCE SUMMARY")
-    print("="*80)
-    print(f"🏆 Best Accuracy: {best_accuracy['config_name']} ({best_accuracy['test_accuracy']:.4f})")
-    print(f"⚡ Fastest Training: {fastest_training['config_name']} ({format_time(fastest_training['training_time'])})")
-    print(f"🎯 Best Efficiency (time/accuracy): {best_efficiency['config_name']}")
+    print(f"TOTAL EXPERIMENTS: {len(experiment_configs)}")
+    print(f"This will test {len(experiment_configs)} different configurations!")
+    print(f"{'='*80}")
     
-    return model, master_word_to_idx, history, timing_results
+    # Prepare different datasets for different sequence lengths
+    datasets = {}
+    sequence_lengths = list(set([config['seq_len'] for config in experiment_configs]))
+    
+    print(f"\nPreparing datasets for sequence lengths: {sorted(sequence_lengths)}")
+    
+    for seq_len in sequence_lengths:
+        print(f"\nPreparing data for sequence length: {seq_len}")
+        X, y, master_word_to_idx, vocab_size = prepare_improved_training_data(
+            processed_books, pretrained_word_to_idx, seq_len
+        )
+        
+        # Create embedding matrix if we have pre-trained embeddings
+        embedding_matrix = None
+        embedding_dim = 100
+        
+        if pretrained_embeddings is not None:
+            embedding_dim = pretrained_embeddings.shape[1]
+            embedding_matrix = create_embedding_matrix(
+                pretrained_embeddings, pretrained_word_to_idx, 
+                master_word_to_idx, embedding_dim, vocab_size
+            )
+        
+        # Split data
+        from sklearn.model_selection import train_test_split
+        y_labels = np.argmax(y, axis=1)
+        
+        X_train, X_test, y_train, y_test = train_test_split(
+            X, y, test_size=0.2, random_state=42, stratify=y_labels
+        )
+        
+        X_train, X_val, y_train, y_val = train_test_split(
+            X_train, y_train, test_size=0.2, random_state=42, 
+            stratify=np.argmax(y_train, axis=1)
+        )
+        
+        datasets[seq_len] = {
+            'X_train': X_train, 'X_val': X_val, 'X_test': X_test,
+            'y_train': y_train, 'y_val': y_val, 'y_test': y_test,
+            'vocab_size': vocab_size, 'embedding_matrix': embedding_matrix,
+            'embedding_dim': embedding_dim, 'master_word_to_idx': master_word_to_idx
+        }
+        
+        print(f"  Training: {X_train.shape[0]} samples")
+        print(f"  Validation: {X_val.shape[0]} samples")
+        print(f"  Testing: {X_test.shape[0]} samples")
+    
+    # Run all experiments
+    all_results = []
+    experiment_start_time = time.time()
+    
+    print(f"\n{'='*80}")
+    print("STARTING COMPREHENSIVE EXPERIMENTS")
+    print(f"{'='*80}")
+    
+    for exp_idx, config in enumerate(experiment_configs, 1):
+        config_name = config['name']
+        kernels = config['kernels']
+        seq_len = config['seq_len']
+        num_filters = config['filters']
+        
+        print(f"\n{'='*100}")
+        print(f"EXPERIMENT {exp_idx}/{len(experiment_configs)}: {config_name}")
+        print(f"Kernels: {kernels}, Sequence Length: {seq_len}, Filters: {num_filters}")
+        print(f"{'='*100}")
+        
+        # Get dataset for this sequence length
+        dataset = datasets[seq_len]
+        
+        try:
+            # Create model
+            model_build_start = time.time()
+            model = create_custom_cnn_model(
+                max_sequence_length=seq_len,
+                vocab_size=dataset['vocab_size'],
+                embedding_matrix=dataset['embedding_matrix'],
+                embedding_dim=dataset['embedding_dim'],
+                filter_sizes=kernels,
+                num_filters=num_filters
+            )
+            
+            model_build_time = time.time() - model_build_start
+            param_count = model.count_params()
+            
+            print(f"Model built in {format_time(model_build_time)}")
+            print(f"Parameters: {param_count:,}")
+            
+            # Setup callbacks
+            callbacks = [
+                EarlyStopping(monitor='val_accuracy', patience=5, restore_best_weights=True),
+                ReduceLROnPlateau(monitor='val_loss', factor=0.5, patience=3, min_lr=1e-6)
+            ]
+            
+            # Train model
+            print(f"\nStarting training at {datetime.datetime.now().strftime('%H:%M:%S')}")
+            training_start_time = time.time()
+            
+            history = model.fit(
+                dataset['X_train'], dataset['y_train'],
+                validation_data=(dataset['X_val'], dataset['y_val']),
+                epochs=10,  # Reduced for faster experimentation
+                batch_size=64,
+                callbacks=callbacks,
+                verbose=1
+            )
+            
+            training_end_time = time.time()
+            training_time = training_end_time - training_start_time
+            
+            # Evaluate
+            eval_start_time = time.time()
+            test_loss, test_accuracy = model.evaluate(dataset['X_test'], dataset['y_test'], verbose=0)
+            eval_time = time.time() - eval_start_time
+            
+            # Store results
+            result = {
+                'experiment_id': exp_idx,
+                'config_name': config_name,
+                'kernels': kernels,
+                'sequence_length': seq_len,
+                'num_filters': num_filters,
+                'param_count': param_count,
+                'build_time': model_build_time,
+                'training_time': training_time,
+                'eval_time': eval_time,
+                'total_time': training_time + eval_time,
+                'test_accuracy': test_accuracy,
+                'test_loss': test_loss,
+                'epochs_trained': len(history.history['loss']),
+                'best_val_accuracy': max(history.history['val_accuracy']),
+                'final_val_accuracy': history.history['val_accuracy'][-1],
+                'time_per_epoch': training_time / len(history.history['loss']),
+                'convergence_epoch': history.history['val_accuracy'].index(max(history.history['val_accuracy'])) + 1,
+                'status': 'SUCCESS'
+            }
+            
+            all_results.append(result)
+            
+            print(f"\n🎯 EXPERIMENT {exp_idx} RESULTS:")
+            print(f"  ✅ Status: SUCCESS")
+            print(f"  📊 Test Accuracy: {test_accuracy:.4f} ({test_accuracy*100:.2f}%)")
+            print(f"  ⏱️  Training Time: {format_time(training_time)}")
+            print(f"  🔢 Parameters: {param_count:,}")
+            print(f"  📈 Best Val Acc: {max(history.history['val_accuracy']):.4f}")
+            print(f"  🎯 Converged at Epoch: {result['convergence_epoch']}")
+            
+            # Memory cleanup
+            del model, history
+            import gc
+            gc.collect()
+            
+        except Exception as e:
+            print(f"❌ EXPERIMENT {exp_idx} FAILED: {str(e)}")
+            
+            error_result = {
+                'experiment_id': exp_idx,
+                'config_name': config_name,
+                'kernels': kernels,
+                'sequence_length': seq_len,
+                'num_filters': num_filters,
+                'status': f'FAILED: {str(e)}',
+                'test_accuracy': 0.0,
+                'training_time': 0.0
+            }
+            all_results.append(error_result)
+            continue
+        
+        # Progress update
+        elapsed_time = time.time() - experiment_start_time
+        avg_time_per_exp = elapsed_time / exp_idx
+        remaining_experiments = len(experiment_configs) - exp_idx
+        estimated_remaining_time = avg_time_per_exp * remaining_experiments
+        
+        print(f"\n📊 PROGRESS UPDATE:")
+        print(f"  Completed: {exp_idx}/{len(experiment_configs)} ({exp_idx/len(experiment_configs)*100:.1f}%)")
+        print(f"  Elapsed: {format_time(elapsed_time)}")
+        print(f"  Estimated Remaining: {format_time(estimated_remaining_time)}")
+        print(f"  Estimated Total: {format_time(elapsed_time + estimated_remaining_time)}")
+    
+    # Comprehensive analysis
+    print(f"\n{'='*100}")
+    print("COMPREHENSIVE EXPERIMENT ANALYSIS")
+    print("="*100)
+    
+    successful_results = [r for r in all_results if r['status'] == 'SUCCESS']
+    failed_results = [r for r in all_results if r['status'] != 'SUCCESS']
+    
+    print(f"\n📊 EXPERIMENT SUMMARY:")
+    print(f"  Total Experiments: {len(all_results)}")
+    print(f"  Successful: {len(successful_results)}")
+    print(f"  Failed: {len(failed_results)}")
+    print(f"  Success Rate: {len(successful_results)/len(all_results)*100:.1f}%")
+    
+    if successful_results:
+        # Sort by accuracy
+        successful_results.sort(key=lambda x: x['test_accuracy'], reverse=True)
+        
+        print(f"\n🏆 TOP 10 PERFORMERS (by accuracy):")
+        print(f"{'Rank':<5} {'Config':<20} {'Kernels':<15} {'SeqLen':<7} {'Accuracy':<10} {'Time':<12}")
+        print("-" * 85)
+        
+        for i, result in enumerate(successful_results[:10], 1):
+            print(f"{i:<5} {result['config_name']:<20} {str(result['kernels']):<15} "
+                  f"{result['sequence_length']:<7} {result['test_accuracy']:.4f}    "
+                  f"{format_time(result['training_time']):<12}")
+        
+        # Analysis by categories
+        print(f"\n📈 ANALYSIS BY KERNEL SIZE:")
+        kernel_analysis = {}
+        for result in successful_results:
+            max_kernel = max(result['kernels'])
+            if max_kernel <= 5:
+                category = 'Small (≤5)'
+            elif max_kernel <= 15:
+                category = 'Medium (6-15)'
+            elif max_kernel <= 50:
+                category = 'Large (16-50)'
+            else:
+                category = 'XLarge (>50)'
+            
+            if category not in kernel_analysis:
+                kernel_analysis[category] = []
+            kernel_analysis[category].append(result['test_accuracy'])
+        
+        for category, accuracies in kernel_analysis.items():
+            avg_acc = np.mean(accuracies)
+            max_acc = max(accuracies)
+            min_acc = min(accuracies)
+            std_acc = np.std(accuracies)
+            print(f"  {category}: Avg={avg_acc:.4f}, Max={max_acc:.4f}, Min={min_acc:.4f}, Std={std_acc:.4f} (n={len(accuracies)})")
+        
+        print(f"\n📏 ANALYSIS BY SEQUENCE LENGTH:")
+        seq_analysis = {}
+        for result in successful_results:
+            seq_len = result['sequence_length']
+            if seq_len not in seq_analysis:
+                seq_analysis[seq_len] = []
+            seq_analysis[seq_len].append(result['test_accuracy'])
+        
+        for seq_len, accuracies in sorted(seq_analysis.items()):
+            avg_acc = np.mean(accuracies)
+            max_acc = max(accuracies)
+            std_acc = np.std(accuracies)
+            print(f"  Length {seq_len}: Avg={avg_acc:.4f}, Max={max_acc:.4f}, Std={std_acc:.4f} (n={len(accuracies)})")
+        
+        # Efficiency analysis
+        print(f"\n⚡ EFFICIENCY ANALYSIS (Accuracy per Training Hour):")
+        efficiency_results = []
+        for result in successful_results:
+            efficiency = result['test_accuracy'] / (result['training_time'] / 3600)  # accuracy per hour
+            efficiency_results.append((result['config_name'], efficiency, result['test_accuracy'], result['training_time']))
+        
+        efficiency_results.sort(key=lambda x: x[1], reverse=True)
+        
+        print(f"{'Rank':<5} {'Config':<20} {'Efficiency':<12} {'Accuracy':<10} {'Time':<12}")
+        print("-" * 70)
+        for i, (config, eff, acc, time) in enumerate(efficiency_results[:10], 1):
+            print(f"{i:<5} {config:<20} {eff:.3f}      {acc:.4f}    {format_time(time):<12}")
+    
+    # Save comprehensive results
+    import json
+    results_filename = f"comprehensive_experiment_results_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+    
+    # Convert numpy types for JSON serialization
+    json_results = []
+    for result in all_results:
+        json_result = {}
+        for key, value in result.items():
+            if isinstance(value, (np.integer, np.floating)):
+                json_result[key] = float(value)
+            elif isinstance(value, list) and len(value) > 0 and isinstance(value[0], (np.integer, np.floating)):
+                json_result[key] = [float(v) for v in value]
+            else:
+                json_result[key] = value
+        json_results.append(json_result)
+    
+    with open(results_filename, 'w') as f:
+        json.dump(json_results, f, indent=2)
+    
+    print(f"\n💾 Results saved to: {results_filename}")
+    
+    total_experiment_time = time.time() - experiment_start_time
+    print(f"\n🏁 TOTAL EXPERIMENT TIME: {format_time(total_experiment_time)}")
+    
+    return all_results
 
 if __name__ == "__main__":
     main()
