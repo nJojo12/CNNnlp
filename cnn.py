@@ -59,13 +59,14 @@ def load_pretrained_word2vec(model_path=''):
         return None, None, None
 
 def create_improved_cnn_model(max_sequence_length, vocab_size, embedding_matrix=None, 
-                             embedding_dim=100, num_books=7, trainable_embeddings=False):
+                             embedding_dim=100, num_books=7, trainable_embeddings=False,filter_sizes = [2,3,4]):
     """Improved CNN model with pre-trained embeddings"""
     
     # Input layer
     inputs = Input(shape=(max_sequence_length,))
     
     # Embedding layer - use pre-trained if available
+
     if embedding_matrix is not None:
         embedding = Embedding(input_dim=vocab_size,
                             output_dim=embedding_dim,
@@ -84,13 +85,13 @@ def create_improved_cnn_model(max_sequence_length, vocab_size, embedding_matrix=
     
     # Multiple CNN layers with different filter sizes
     conv_layers = []
-    filter_sizes = [2, 3, 4, 5]
     
     for filter_size in filter_sizes:
         conv = Conv1D(128, filter_size, activation='relu', padding='same')(x)
         conv = GlobalMaxPooling1D()(conv)
         conv_layers.append(conv)
     
+    print(conv_layers)
     # Concatenate all conv layers
     if len(conv_layers) > 1:
         from tensorflow.keras.layers import concatenate
@@ -301,108 +302,113 @@ def main():
         )
     
     # Create improved model
-    model = create_improved_cnn_model(
-        max_sequence_length=max_sequence_length,
-        vocab_size=vocab_size,  # Use the correct vocab_size
-        embedding_matrix=embedding_matrix,
-        embedding_dim=embedding_dim,
-        num_books=7,
-        trainable_embeddings=False  # Keep pre-trained embeddings frozen initially
-    )
-    
-    print(f"\nModel architecture:")
-    model.summary()
-    
-    # Split data with stratification
-    from sklearn.model_selection import train_test_split
-    
-    # Convert one-hot back to labels for stratification
-    y_labels = np.argmax(y, axis=1)
-    
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.2, random_state=42, stratify=y_labels
-    )
-    
-    # Further split training into train/validation
-    X_train, X_val, y_train, y_val = train_test_split(
-        X_train, y_train, test_size=0.2, random_state=42, 
-        stratify=np.argmax(y_train, axis=1)
-    )
-    
-    print(f"\nData splits:")
-    print(f"  Training: {X_train.shape[0]} samples")
-    print(f"  Validation: {X_val.shape[0]} samples") 
-    print(f"  Testing: {X_test.shape[0]} samples")
-    
-    # Setup callbacks
-    callbacks = [
-        EarlyStopping(monitor='val_accuracy', patience=5, restore_best_weights=True),
-        ReduceLROnPlateau(monitor='val_loss', factor=0.5, patience=3, min_lr=1e-6)
-    ]
-    
-    # Train the model
-    print("\nTraining model...")
-    history = model.fit(
-        X_train, y_train,
-        validation_data=(X_val, y_val),
-        epochs=15,
-        batch_size=64,  # Reduced batch size for better learning
-        callbacks=callbacks,
-        verbose=1
-    )
-    
-    # Evaluate the model
-    test_loss, test_accuracy = model.evaluate(X_test, y_test, verbose=0)
-    print(f"\nFinal Results:")
-    print(f"Test accuracy: {test_accuracy:.4f} ({test_accuracy*100:.2f}%)")
-    print(f"Test loss: {test_loss:.4f}")
-    
-    # Plot training history
-    plt.figure(figsize=(12, 4))
-    
-    plt.subplot(1, 2, 1)
-    plt.plot(history.history['accuracy'], label='Training Accuracy')
-    plt.plot(history.history['val_accuracy'], label='Validation Accuracy')
-    plt.title('Model Accuracy')
-    plt.xlabel('Epoch')
-    plt.ylabel('Accuracy')
-    plt.legend()
-    
-    plt.subplot(1, 2, 2)
-    plt.plot(history.history['loss'], label='Training Loss')
-    plt.plot(history.history['val_loss'], label='Validation Loss')
-    plt.title('Model Loss')
-    plt.xlabel('Epoch')
-    plt.ylabel('Loss')
-    plt.legend()
-    
-    plt.tight_layout()
-    plt.savefig('training_history.png', dpi=300, bbox_inches='tight')
-    plt.show()
-    
-    # Detailed evaluation
-    y_pred = model.predict(X_test)
-    y_pred_classes = np.argmax(y_pred, axis=1)
-    y_test_classes = np.argmax(y_test, axis=1)
-    
-    from sklearn.metrics import classification_report, confusion_matrix
-    import seaborn as sns
-    
-    print("\nClassification Report:")
-    book_names = [f'HP{i+1}' for i in range(7)]
-    print(classification_report(y_test_classes, y_pred_classes, 
-                              target_names=book_names))
-    
-    # Confusion matrix
-    plt.figure(figsize=(8, 6))
-    cm = confusion_matrix(y_test_classes, y_pred_classes)
-    sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', 
-                xticklabels=book_names, yticklabels=book_names)
-    plt.title('Confusion Matrix')
-    plt.ylabel('True Label')
-    plt.xlabel('Predicted Label')
-    plt.savefig('confusion_matrix.png', dpi=300, bbox_inches='tight')
-    plt.show()
+    fs = [[2,3,4],[10,15,20],[50,75,100],[150,200,250]]
+    models = []
+    for i in fs:
+        model = create_improved_cnn_model(
+            max_sequence_length=max_sequence_length,
+            vocab_size=vocab_size,  # Use the correct vocab_size
+            embedding_matrix=embedding_matrix,
+            embedding_dim=embedding_dim,
+            num_books=7,
+            trainable_embeddings=False  # Keep pre-trained embeddings frozen initially
+        )
+        models.append(model)
+    count =1
+    for model in models:
+        print(f"\nModel architecture:")
+        model.summary()
+        
+        # Split data with stratification
+        from sklearn.model_selection import train_test_split
+        
+        # Convert one-hot back to labels for stratification
+        y_labels = np.argmax(y, axis=1)
+        
+        X_train, X_test, y_train, y_test = train_test_split(
+            X, y, test_size=0.2, random_state=42, stratify=y_labels
+        )
+        
+        # Further split training into train/validation
+        X_train, X_val, y_train, y_val = train_test_split(
+            X_train, y_train, test_size=0.2, random_state=42, 
+            stratify=np.argmax(y_train, axis=1)
+        )
+        
+        print(f"\nData splits:")
+        print(f"  Training: {X_train.shape[0]} samples")
+        print(f"  Validation: {X_val.shape[0]} samples") 
+        print(f"  Testing: {X_test.shape[0]} samples")
+        
+        # Setup callbacks
+        callbacks = [
+            EarlyStopping(monitor='val_accuracy', patience=5, restore_best_weights=True),
+            ReduceLROnPlateau(monitor='val_loss', factor=0.5, patience=3, min_lr=1e-6)
+        ]
+        
+        # Train the model
+        print("\nTraining model...")
+        history = model.fit(
+            X_train, y_train,
+            validation_data=(X_val, y_val),
+            epochs=15,
+            batch_size=64,  # Reduced batch size for better learning
+            callbacks=callbacks,
+            verbose=1
+        )
+        
+        # Evaluate the model
+        test_loss, test_accuracy = model.evaluate(X_test, y_test, verbose=0)
+        print(f"\nFinal Results:")
+        print(f"Test accuracy: {test_accuracy:.4f} ({test_accuracy*100:.2f}%)")
+        print(f"Test loss: {test_loss:.4f}")
+        # Detailed evaluation
+        y_pred = model.predict(X_test)
+        y_pred_classes = np.argmax(y_pred, axis=1)
+        y_test_classes = np.argmax(y_test, axis=1)
+        from sklearn.metrics import classification_report, confusion_matrix
+        import seaborn as sns
+        
+        print("\nClassification Report:")
+        book_names = [f'HP{i+1}' for i in range(7)]
+        print(classification_report(y_test_classes, y_pred_classes, 
+                                target_names=book_names))
+        
+        # Confusion matrix
+        plt.figure(figsize=(8, 6))
+        cm = confusion_matrix(y_test_classes, y_pred_classes)
+        sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', 
+                    xticklabels=book_names, yticklabels=book_names)
+        count+=1
+        plt.title('Confusion Matrix')
+        plt.ylabel('True Label')
+        plt.xlabel('Predicted Label')
+        plt.savefig(f'confusion_matrix{count}.png', dpi=300, bbox_inches='tight')
+        # plt.show()
+          
+        # Plot training history
+        plt.figure(figsize=(12, 4))
+        
+        plt.subplot(1, 2, 1)
+        plt.plot(history.history['accuracy'], label='Training Accuracy')
+        plt.plot(history.history['val_accuracy'], label='Validation Accuracy')
+        plt.title('Model Accuracy')
+        plt.xlabel('Epoch')
+        plt.ylabel('Accuracy')
+        plt.legend()
+        
+        plt.subplot(1, 2, 2)
+        plt.plot(history.history['loss'], label='Training Loss')
+        plt.plot(history.history['val_loss'], label='Validation Loss')
+        plt.title('Model Loss')
+        plt.xlabel('Epoch')
+        plt.ylabel('Loss')
+        plt.legend()
+        
+        plt.tight_layout()
+        plt.savefig(f'training_history{count}.png', dpi=300, bbox_inches='tight')
+        # plt.show()
+        
     
     return model, master_word_to_idx, history
 
